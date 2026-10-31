@@ -1,0 +1,9 @@
+﻿{
+    "timestamp":  "2026-11-01T10:20:00Z",
+    "metrics":  {
+                    "latency_ms":  25,
+                    "packet_loss_percent":  0
+                },
+    "incident_id":  "INC-DNS-DHCP-005",
+    "device":  "campus-dns-dhcp-segment"
+}

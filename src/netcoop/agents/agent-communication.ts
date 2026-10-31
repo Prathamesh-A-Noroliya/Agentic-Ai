@@ -9,6 +9,8 @@ const SUPPORTED_PROTOCOL_VERSION = "1.0";
 const VALID_AGENTS: AgentId[] = [
   "performance-agent",
   "infrastructure-agent",
+  "connectivity-agent",
+  "fault-correlation-agent",
   "hypothesis-agent",
   "verification-agent",
   "coordinator",
@@ -48,10 +50,12 @@ export function createAgentMessage(input: {
   recipient: AgentId;
   messageType: AgentMessage["message_type"];
   payload: AgentMessage["payload"];
+  correlationId?: string;
 }): AgentMessage {
   return {
     protocol_version: SUPPORTED_PROTOCOL_VERSION,
     message_id: crypto.randomUUID(),
+    ...(input.correlationId ? { correlation_id: input.correlationId } : {}),
     incident_id: input.incidentId,
     sender: input.sender,
     recipient: input.recipient,
@@ -85,6 +89,17 @@ export function validateAgentMessage(
     input.message_id.length > 128
   ) {
     issues.push("Message ID is missing or invalid.");
+  }
+
+  if (
+    input.correlation_id !== undefined &&
+    (
+      typeof input.correlation_id !== "string" ||
+      input.correlation_id.trim().length === 0 ||
+      input.correlation_id.length > 128
+    )
+  ) {
+    issues.push("Correlation ID is invalid.");
   }
 
   if (

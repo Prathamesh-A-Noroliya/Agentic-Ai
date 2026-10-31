@@ -1,0 +1,10 @@
+﻿{
+    "timestamp":  "2026-11-01T10:10:00Z",
+    "metrics":  {
+                    "latency_ms":  180,
+                    "packet_loss_percent":  12,
+                    "jitter_ms":  55
+                },
+    "incident_id":  "INC-WIFI-003",
+    "device":  "hostel-ap-01"
+}

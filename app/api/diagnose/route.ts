@@ -2,20 +2,12 @@ import { NextResponse } from "next/server";
 import { validateTelemetry } from "@/src/netcoop/telemetry";
 import { runInvestigationCoordinator } from "@/src/netcoop/agents/investigation-coordinator";
 
-const AGENTS = [
-  "performance-agent",
-  "infrastructure-agent",
-  "hypothesis-agent",
-  "verification-agent",
-  "coordinator",
-];
-
 export async function GET() {
   return NextResponse.json({
     name: "NetCoop AI Diagnosis API",
     status: "ready",
-    mode: "four-agent-investigation",
-    agents: AGENTS,
+    mode: "multi-agent-investigation",
+    agents: ["performance-agent", "infrastructure-agent", "connectivity-agent", "fault-correlation-agent", "hypothesis-agent", "verification-agent", "coordinator"],
   });
 }
 
@@ -80,7 +72,7 @@ export async function POST(request: Request) {
         incident: validation.data,
         investigation: {
           status: "completed",
-          agents_executed: AGENTS,
+          agents_executed: [...new Set([...report.findings.map((finding) => finding.agent), ...(report.hypotheses.length ? ["hypothesis-agent"] : []), ...(report.verifications.length ? ["verification-agent"] : []), "coordinator"])],
           report,
         },
       },

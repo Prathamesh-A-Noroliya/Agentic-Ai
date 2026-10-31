@@ -1,0 +1,7 @@
+"Scenario","Result","Status","Confidence","RootCause","SupportingEvidence","Hypotheses","Verifications"
+"01-normal.json","API_FAILED","","","The remote server returned an error: (500) Internal Server Error.","0","0","0"
+"02-link-congestion.json","API_FAILED","","","The remote server returned an error: (500) Internal Server Error.","0","0","0"
+"03-weak-wifi-symptoms.json","API_SUCCESS","insufficient_evidence","0","Insufficient evidence to establish a probable root cause.","0","1","1"
+"04-interface-fault.json","API_FAILED","","","The remote server returned an error: (500) Internal Server Error.","0","0","0"
+"05-dns-dhcp-insufficient-evidence.json","API_SUCCESS","insufficient_evidence","0","Insufficient evidence to establish a probable root cause.","0","1","1"
+"06-interoperability-invalid-input.json","API_FAILED","","","The remote server returned an error: (400) Bad Request.","0","0","0"

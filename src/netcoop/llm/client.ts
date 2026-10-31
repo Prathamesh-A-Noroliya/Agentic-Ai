@@ -1,5 +1,4 @@
-
-import OpenAI from "openai";
+﻿import OpenAI from "openai";
 
 export type LLMProvider = "ollama" | "openai-compatible";
 
@@ -11,7 +10,7 @@ export interface LLMResponse {
 
 function getLLMConfig() {
   const provider = (
-    process.env.LLM_PROVIDER ?? "ollama"
+    process.env.LLM_PROVIDER ?? "openai-compatible"
   ) as LLMProvider;
 
   if (
@@ -25,7 +24,7 @@ function getLLMConfig() {
     process.env.LLM_BASE_URL ??
     (provider === "ollama"
       ? "http://localhost:11434/v1"
-      : undefined);
+      : "https://api.openai.com/v1");
 
   const apiKey =
     process.env.LLM_API_KEY ??
@@ -88,4 +87,20 @@ export async function generateLLMResponse(input: {
     provider: config.provider,
     model: config.model,
   };
+}
+
+export function parseLLMJson<T>(content: string): T {
+  const cleaned = content
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch {
+    throw new Error(
+      "LLM returned invalid JSON. Please retry the investigation."
+    );
+  }
 }

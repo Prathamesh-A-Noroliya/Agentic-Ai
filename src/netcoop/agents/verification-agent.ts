@@ -1,4 +1,4 @@
-﻿import { generateLLMResponse } from "../llm/client";
+﻿import { generateLLMResponse, parseLLMJson } from "../llm/client";
 import type { EvidenceFinding, NetworkTelemetry } from "../types";
 import type {
   Hypothesis,
@@ -43,6 +43,19 @@ RULES:
    contradictions to congestion. Evaluate their actual relationship
    to each hypothesis and acknowledge uncertainty.
 8. Distinguish correlation from causation.
+9. NUMERIC CONSISTENCY: Compare every supplied metric with its stated investigation threshold.
+   A value above its threshold MUST be described as above threshold, never within threshold.
+   Preserve exact values, thresholds, and units when discussing measurements.
+10. Treat deterministic agent observations as authoritative measurements.
+    You may challenge their interpretation, but never change or contradict their numeric facts.
+11. A threshold violation establishes an observed anomaly, not its root cause.
+12. Do not claim causation from correlation alone.
+EVIDENCE CLASSIFICATION:
+- An above-threshold latency, packet-loss, or jitter measurement is an observed network symptom.
+- For a congestion hypothesis, these elevated symptoms are supporting evidence or neutral evidence, NOT contradictions by themselves.
+- High CPU utilization may support a resource-pressure hypothesis, but does not prove it caused network symptoms.
+- Mark evidence as contradicting only when the actual observation meaningfully weakens the specific hypothesis.
+- Never classify an observation as contradicting merely because it is another elevated metric.
 9. Explain why evidence supports or challenges a hypothesis.
 10. If evidence is insufficient, use inconclusive.
 11. Return exactly one verification for every supplied hypothesis.
@@ -88,9 +101,10 @@ function isStringArray(value: unknown): value is string[] {
 function parseVerificationResult(
   content: string,
   expectedHypothesisIds: string[],
-  evidenceCatalog: EvidenceReference[]
+  evidenceCatalog: EvidenceReference[],
+  hypotheses: Hypothesis[]
 ): VerificationResult {
-  const parsed: unknown = JSON.parse(content);
+  const parsed: unknown = parseLLMJson(content);
 
   if (
     !isRecord(parsed) ||
@@ -136,9 +150,32 @@ function parseVerificationResult(
         );
       }
 
-      const supporting = item.supporting_evidence as string[];
-      const contradicting = item.contradicting_evidence as string[];
+      let supporting = item.supporting_evidence as string[];
+      let contradicting = item.contradicting_evidence as string[];
       const missing = item.missing_evidence as string[];
+
+      const hypothesis = hypotheses.find(
+        (entry) => entry.id === item.hypothesis_id
+      );
+
+      const isCongestionHypothesis =
+        /\bcongestion\b/i.test(hypothesis?.explanation ?? "");
+
+      if (isCongestionHypothesis) {
+        const corroboratingConnectivityEvidence = contradicting.filter((id) => {
+          const reference = evidenceCatalog.find((entry) => entry.id === id);
+          return reference &&
+            /^Connectivity:\s*(Packet loss|Latency)\b/i.test(reference.statement);
+        });
+
+        contradicting = contradicting.filter(
+          (id) => !corroboratingConnectivityEvidence.includes(id)
+        );
+
+        supporting = [
+          ...new Set([...supporting, ...corroboratingConnectivityEvidence]),
+        ];
+      }
 
       const referencedIds = [...supporting, ...contradicting];
 
@@ -231,6 +268,10 @@ export async function runVerificationAgent(input: {
   return parseVerificationResult(
     response.content,
     input.hypotheses.map((hypothesis) => hypothesis.id),
-    input.evidenceCatalog
+    input.evidenceCatalog,
+    input.hypotheses
   );
 }
+
+
+

@@ -1,0 +1,10 @@
+﻿{
+    "timestamp":  "2026-11-01T10:15:00Z",
+    "metrics":  {
+                    "interface_errors":  850,
+                    "packet_loss_percent":  6,
+                    "queue_drops":  120
+                },
+    "incident_id":  "INC-INTERFACE-004",
+    "device":  "department-switch-02"
+}

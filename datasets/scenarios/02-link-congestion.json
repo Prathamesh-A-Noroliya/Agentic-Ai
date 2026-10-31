@@ -1,0 +1,12 @@
+﻿{
+    "timestamp":  "2026-11-01T10:05:00Z",
+    "metrics":  {
+                    "latency_ms":  280,
+                    "queue_drops":  420,
+                    "packet_loss_percent":  8,
+                    "jitter_ms":  75,
+                    "utilization_percent":  96
+                },
+    "incident_id":  "INC-CONGESTION-002",
+    "device":  "gateway-01"
+}

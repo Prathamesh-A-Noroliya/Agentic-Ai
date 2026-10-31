@@ -1,0 +1,8 @@
+﻿{
+    "metrics":  {
+                    "latency_ms":  "unknown",
+                    "unsupported_metric":  25
+                },
+    "incident_id":  "INC-INTEROP-006",
+    "device":  "test-device-06"
+}

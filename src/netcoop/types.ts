@@ -1,4 +1,4 @@
-﻿
+
 export interface NetworkTelemetry {
   incident_id: string;
   device: string;
@@ -69,6 +69,17 @@ export interface DiagnosisReport {
   device: string;
   status: DiagnosisStatus;
   summary: string;
+  suspected_root_cause: string;
+  confidence: number;
+  affected_devices: string[];
+  supporting_evidence: {
+    metric: string;
+    value: string;
+    interpretation: string;
+  }[];
+  alternative_causes: string[];
+  recommended_actions: string[];
+  evidence_sources: string[];
 
   // Original observations from diagnostic agents
   findings: EvidenceFinding[];
@@ -79,6 +90,7 @@ export interface DiagnosisReport {
   verifications: DiagnosisVerification[];
 
   missing_evidence: string[];
+  limitations: string[];
   recommendations: string[];
   generated_at: string;
 }
@@ -88,6 +100,8 @@ export interface DiagnosisReport {
 export type AgentId =
   | "performance-agent"
   | "infrastructure-agent"
+  | "connectivity-agent"
+  | "fault-correlation-agent"
   | "hypothesis-agent"
   | "verification-agent"
   | "coordinator";
@@ -102,6 +116,7 @@ export type AgentMessageType =
 export interface AgentMessage {
   protocol_version: "1.0";
   message_id: string;
+  correlation_id?: string;
   incident_id: string;
   sender: AgentId;
   recipient: AgentId;
