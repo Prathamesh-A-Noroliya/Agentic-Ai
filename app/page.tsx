@@ -254,16 +254,7 @@ export default function Home() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message,
-          conversation: messages.slice(-10),
-          context: {
-            incident_id: incidentId,
-            device,
-            metrics: latestMetrics,
-            diagnosis,
-          },
-        }),
+        body: JSON.stringify({ message }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || result.message || "AI request failed.");
